@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arretado Speed — Teste de Velocidade</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0c0e14;
+  --s1:#13151e;
+  --s2:#1a1d29;
+  --s3:#222638;
+  --border:rgba(255,255,255,0.07);
+  --border2:rgba(255,255,255,0.12);
+  --blue:#3b82f6;
+  --blue-dim:rgba(59,130,246,0.15);
+  --violet:#8b5cf6;
+  --emerald:#10b981;
+  --amber:#f59e0b;
+  --red:#ef4444;
+  --t1:#f1f5f9;
+  --t2:#94a3b8;
+  --t3:#475569;
+}
+body{
+  font-family:'Inter',sans-serif;
+  background:var(--bg);
+  color:var(--t1);
+  min-height:100vh;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* Layout */
+.wrap{max-width:760px;margin:0 auto;padding:32px 20px 60px}
+
+/* Header */
+.header{text-align:center;margin-bottom:24px;padding:32px 20px 20px}
+.header-top{display:flex;justify-content:center;margin-bottom:20px}
+.badge-ssl{display:inline-flex;align-items:center;gap:5px;font-size:.7rem;color:var(--emerald);background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.2);padding:4px 12px;border-radius:20px;font-weight:500}
+.logo-icon-wrap{display:flex;align-items:center;justify-content:center;margin-bottom:18px}
+.logo-icon{width:52px;height:52px;background:var(--blue);border-radius:14px;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 32px rgba(59,130,246,.35)}
+.logo-text{font-size:2rem;font-weight:800;color:var(--t1);letter-spacing:-.04em;line-height:1;margin-bottom:8px}
+.logo-text span{color:var(--blue)}
+.logo-sub{font-size:.85rem;color:var(--t2);font-weight:400;letter-spacing:.01em}
+
+/* Info bar */
+.infobar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:24px}
+.info-chip{display:inline-flex;align-items:center;gap:6px;font-size:.72rem;color:var(--t2);background:var(--s1);border:1px solid var(--border);padding:5px 12px;border-radius:6px}
+.info-chip .label{color:var(--t3)}
+.info-chip .val{color:var(--t1);font-weight:500}
+
+/* Main card */
+.main-card{background:var(--s1);border:1px solid var(--border);border-radius:16px;padding:32px 28px;margin-bottom:16px}
+
+/* Phase steps */
+.phases{display:flex;align-items:center;gap:0;margin-bottom:28px}
+.phase-step{display:flex;align-items:center;gap:8px;font-size:.72rem;color:var(--t3);font-weight:500;padding:6px 12px;border-radius:6px;transition:all .3s}
+.phase-step.active{color:var(--blue);background:var(--blue-dim)}
+.phase-step.done{color:var(--emerald)}
+.phase-dot{width:6px;height:6px;border-radius:50%;background:currentColor;flex-shrink:0}
+.phase-sep{flex:1;height:1px;background:var(--border);margin:0 4px}
+
+/* Status text */
+.status-row{display:flex;align-items:center;gap:8px;margin-bottom:28px;min-height:20px}
+.spin{width:14px;height:14px;border:2px solid var(--blue-dim);border-top-color:var(--blue);border-radius:50%;animation:spin .8s linear infinite;flex-shrink:0}
+.status-txt{font-size:.78rem;color:var(--t2)}
+@keyframes spin{to{transform:rotate(360deg)}}
+.done-icon{width:14px;height:14px;color:var(--emerald);flex-shrink:0}
+
+/* Gauge */
+.gauge-area{display:flex;flex-direction:column;align-items:center;margin-bottom:32px}
+.gauge-wrap{position:relative;width:220px;height:220px}
+.gauge-wrap svg{display:block}
+.gauge-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding-bottom:24px}
+.g-val{font-size:3rem;font-weight:800;color:var(--t1);line-height:1;letter-spacing:-.04em;transition:color .3s}
+.g-unit{font-size:.7rem;font-weight:500;color:var(--t2);margin-top:4px;letter-spacing:.05em;text-transform:uppercase}
+.g-lbl{font-size:.65rem;font-weight:600;color:var(--t3);margin-top:3px;letter-spacing:.1em;text-transform:uppercase}
+
+/* Metrics row */
+.metrics{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.metric{background:var(--s2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;transition:border-color .3s,background .3s}
+.metric.active{border-color:var(--blue);background:rgba(59,130,246,.05)}
+.metric.done-m{border-color:rgba(16,185,129,.25)}
+.metric .mlbl{font-size:.65rem;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
+.metric .mval{font-size:1.5rem;font-weight:700;color:var(--t1);line-height:1}
+.metric .mval span{font-size:.75rem;font-weight:400;color:var(--t2)}
+.metric .msub{font-size:.65rem;color:var(--t3);margin-top:4px}
+
+/* Progress bar */
+.prog-track{height:2px;background:var(--s3);border-radius:1px;overflow:hidden;margin-bottom:28px}
+.prog-fill{height:100%;width:0%;background:var(--blue);border-radius:1px;transition:width .35s ease}
+
+/* Button */
+.btn-start{
+  display:block;width:100%;padding:14px;
+  background:var(--blue);color:#fff;
+  font-family:'Inter',sans-serif;font-size:.9rem;font-weight:600;
+  border:none;border-radius:10px;cursor:pointer;
+  transition:background .2s,transform .1s,box-shadow .2s;
+  box-shadow:0 1px 2px rgba(0,0,0,.3),0 0 0 0 rgba(59,130,246,0);
+  letter-spacing:.01em;
+}
+.btn-start:hover:not(:disabled){background:#2563eb;box-shadow:0 4px 16px rgba(59,130,246,.35)}
+.btn-start:active:not(:disabled){transform:scale(.99)}
+.btn-start:disabled{background:var(--s3);color:var(--t3);cursor:not-allowed;box-shadow:none}
+
+/* Results */
+.results-card{background:var(--s1);border:1px solid var(--border);border-radius:16px;padding:28px;margin-bottom:16px;display:none}
+.results-card.show{display:block;animation:fadeUp .4s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+.res-header{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin-bottom:24px}
+.res-title{font-size:.85rem;font-weight:600;color:var(--t1)}
+
+/* Score badge */
+.score-badge{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:6px 14px;border-radius:8px;font-weight:700;font-size:.85rem;
+}
+
+/* Test ID row */
+.testid-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.testid-label{font-size:.7rem;color:var(--t3)}
+.testid-val{font-size:.7rem;font-family:'SF Mono','Fira Code',monospace;color:var(--t2);background:var(--s2);padding:3px 8px;border-radius:4px;border:1px solid var(--border)}
+.btn-copy{font-family:'Inter',sans-serif;font-size:.65rem;padding:4px 10px;border:1px solid var(--border);background:transparent;color:var(--t2);border-radius:5px;cursor:pointer;transition:all .2s;font-weight:500}
+.btn-copy:hover{color:var(--blue);border-color:rgba(59,130,246,.4)}
+.btn-share{font-family:'Inter',sans-serif;font-size:.65rem;padding:4px 10px;border:1px solid var(--border);background:transparent;color:var(--t2);border-radius:5px;cursor:pointer;transition:all .2s;font-weight:500}
+.btn-share:hover{color:var(--violet);border-color:rgba(139,92,246,.4)}
+
+/* Stats grid */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px}
+.stat-box{background:var(--s2);border:1px solid var(--border);border-radius:8px;padding:12px 14px;text-align:center}
+.stat-box .sl{font-size:.6rem;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px}
+.stat-box .sv{font-size:1.3rem;font-weight:700}
+.stat-box small{font-size:.65rem;color:var(--t3)}
+
+.speed-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px}
+.speed-box{background:var(--s2);border:1px solid var(--border);border-radius:8px;padding:16px}
+.speed-box .sl{font-size:.65rem;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
+.speed-box .sv{font-size:1.8rem;font-weight:700;line-height:1}
+.speed-box small{font-size:.72rem;color:var(--t3)}
+.speed-box .tag{display:inline-block;margin-top:6px;font-size:.62rem;font-weight:600;padding:2px 7px;border-radius:4px;text-transform:uppercase;letter-spacing:.06em}
+
+/* Use cases */
+.section-title{font-size:.72rem;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:12px}
+.usecases{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:20px}
+.usecase{display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:8px;border:1px solid var(--border);font-size:.72rem;font-weight:500}
+.usecase.ok{background:rgba(16,185,129,.06);border-color:rgba(16,185,129,.2);color:var(--emerald)}
+.usecase.warn{background:rgba(245,158,11,.06);border-color:rgba(245,158,11,.2);color:var(--amber)}
+.usecase.no{background:rgba(239,68,68,.06);border-color:rgba(239,68,68,.15);color:var(--red)}
+.usecase svg{flex-shrink:0}
+
+/* History */
+.history-card{background:var(--s1);border:1px solid var(--border);border-radius:16px;padding:24px 28px;margin-bottom:16px;display:none}
+.history-card.show{display:block}
+.hist-item{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)}
+.hist-item:last-child{border-bottom:none}
+.hist-date{font-size:.7rem;color:var(--t3)}
+.hist-vals{display:flex;gap:16px}
+.hist-val{text-align:right}
+.hist-val .hv{font-size:.8rem;font-weight:600;color:var(--t1)}
+.hist-val .hl{font-size:.6rem;color:var(--t3)}
+
+/* Footer */
+.footer{border-top:1px solid var(--border);padding-top:24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.footer-left{font-size:.75rem;color:var(--t3)}
+.footer-left strong{color:var(--t2);font-weight:500}
+.footer-links{display:flex;gap:8px}
+.flink{display:inline-flex;align-items:center;gap:5px;font-size:.72rem;color:var(--t3);text-decoration:none;padding:5px 10px;border:1px solid transparent;border-radius:6px;transition:all .2s;font-weight:500}
+.flink:hover{color:var(--t1);border-color:var(--border2);background:var(--s2)}
+
+@media(max-width:600px){
+  .metrics{grid-template-columns:1fr}
+  .stats-grid{grid-template-columns:repeat(2,1fr)}
+  .usecases{grid-template-columns:1fr 1fr}
+  .speed-grid{grid-template-columns:1fr}
+  .phases{display:none}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="logo-icon-wrap">
+      <div class="logo-icon">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+      </div>
+    </div>
+    <div class="logo-text">Arretado<span> Speed</span></div>
+  </header>
+
+  <!-- INFO BAR -->
+  <div class="infobar">
+    <div class="info-chip"><span class="label">IP</span><span class="val" id="info-ip">detectando…</span></div>
+    <div class="info-chip"><span class="label">ISP</span><span class="val" id="info-isp">—</span></div>
+    <div class="info-chip"><span class="label">Localização</span><span class="val" id="info-loc">—</span></div>
+  </div>
+
+  <!-- MAIN CARD -->
+  <div class="main-card">
+
+    <!-- Phase steps -->
+    <div class="phases">
+      <div class="phase-step" id="ph-ping"><span class="phase-dot"></span>Latência</div>
+      <div class="phase-sep"></div>
+      <div class="phase-step" id="ph-download"><span class="phase-dot"></span>Download</div>
+      <div class="phase-sep"></div>
+      <div class="phase-step" id="ph-upload"><span class="phase-dot"></span>Upload</div>
+    </div>
+
+    <!-- Status -->
+    <div class="status-row" id="status-row">
+      <span style="font-size:.78rem;color:var(--t3)">Clique em iniciar para começar o teste</span>
+    </div>
+
+    <!-- Progress -->
+    <div class="prog-track"><div class="prog-fill" id="pbar"></div></div>
+
+    <!-- Gauge -->
+    <div class="gauge-area">
+      <div class="gauge-wrap">
+        <svg width="220" height="220" viewBox="0 0 200 200">
+          <!-- Track -->
+          <circle id="g-track" cx="100" cy="100" r="82"
+            fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="10"
+            stroke-dasharray="387 516" stroke-linecap="round"
+            transform="rotate(135,100,100)"/>
+          <!-- Fill -->
+          <circle id="g-fill" cx="100" cy="100" r="82"
+            fill="none" stroke="#3b82f6" stroke-width="10"
+            stroke-dasharray="0 516" stroke-linecap="round"
+            transform="rotate(135,100,100)"
+            style="transition:stroke-dasharray .15s ease,stroke .25s ease"/>
+        </svg>
+        <div class="gauge-center">
+          <div class="g-val" id="g-val">—</div>
+          <div class="g-unit" id="g-unit">ms</div>
+          <div class="g-lbl" id="g-lbl">ping</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Metrics -->
+    <div class="metrics">
+      <div class="metric" id="card-ping">
+        <div class="mlbl">Ping</div>
+        <div class="mval"><span id="val-ping">—</span><span> ms</span></div>
+        <div class="msub">Jitter: <span id="val-jitter">—</span> ms</div>
+      </div>
+      <div class="metric" id="card-download">
+        <div class="mlbl">Download</div>
+        <div class="mval"><span id="val-dl">—</span><span> Mbps</span></div>
+        <div class="msub">4 conexões paralelas</div>
+      </div>
+      <div class="metric" id="card-upload">
+        <div class="mlbl">Upload</div>
+        <div class="mval"><span id="val-ul">—</span><span> Mbps</span></div>
+        <div class="msub">4 conexões paralelas</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- BUTTON -->
+  <button class="btn-start" id="btn-start" onclick="startTest()">Iniciar Teste</button>
+
+  <!-- RESULTS -->
+  <div class="results-card" id="results-card">
+
+    <div class="res-header">
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+        <span class="res-title">Resultado</span>
+        <span class="score-badge" id="score-badge">—</span>
+      </div>
+      <div class="testid-row">
+        <span class="testid-label">ID:</span>
+        <span class="testid-val" id="res-id">—</span>
+        <button class="btn-copy" onclick="copyId()">Copiar</button>
+        <button class="btn-share" onclick="shareResult()">Compartilhar</button>
+      </div>
+    </div>
+
+    <!-- Ping details -->
+    <div class="section-title">Latência</div>
+    <div class="stats-grid" style="margin-bottom:20px">
+      <div class="stat-box"><div class="sl">Mínimo</div><div class="sv" style="color:var(--blue)"><span id="r-pmin">—</span><small> ms</small></div></div>
+      <div class="stat-box"><div class="sl">Médio</div><div class="sv" style="color:var(--blue)"><span id="r-pavg">—</span><small> ms</small></div></div>
+      <div class="stat-box"><div class="sl">Máximo</div><div class="sv" style="color:var(--blue)"><span id="r-pmax">—</span><small> ms</small></div></div>
+      <div class="stat-box"><div class="sl">Jitter</div><div class="sv" style="color:var(--amber)"><span id="r-jit">—</span><small> ms</small></div></div>
+    </div>
+
+    <!-- DL / UL -->
+    <div class="section-title">Velocidade</div>
+    <div class="speed-grid">
+      <div class="speed-box">
+        <div class="sl">Download</div>
+        <div class="sv" style="color:var(--blue)"><span id="r-dl">—</span> <small>Mbps</small></div>
+        <div id="r-dl-tag"></div>
+      </div>
+      <div class="speed-box">
+        <div class="sl">Upload</div>
+        <div class="sv" style="color:var(--violet)"><span id="r-ul">—</span> <small>Mbps</small></div>
+      </div>
+    </div>
+
+    <!-- Use cases -->
+    <div class="section-title">O que esta conexão suporta</div>
+    <div class="usecases" id="usecases"></div>
+
+  </div>
+
+  <!-- HISTORY -->
+  <div class="history-card" id="history-card">
+    <div class="section-title" style="margin-bottom:16px">Testes Recentes</div>
+    <div id="history-list"></div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-left">Desenvolvido por <strong>Alexandre Alan</strong></div>
+    <div class="footer-links">
+      <a href="https://github.com/AlexandreAlan" target="_blank" rel="noopener" class="flink">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+        GitHub
+      </a>
+      <a href="https://www.linkedin.com/in/alexandre-alan-a5a8362ab" target="_blank" rel="noopener" class="flink">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+        LinkedIn
+      </a>
+    </div>
+  </footer>
+
+</div>
+<script>
+// ── Config ────────────────────────────────────────────────────────────────────
+const CFG={PING_N:10,PARALLEL:4,DL_MS:12000,UL_BYTES:25*1024*1024,MAX_PING:200,MAX_DL:1000,MAX_UL:500};
+const CIRC=2*Math.PI*82, ARC=CIRC*0.75; // r=82, 270°
+
+// ── State ─────────────────────────────────────────────────────────────────────
+let running=false,testId=null,clientIP='0.0.0.0';
+const $=id=>document.getElementById(id);
+const dl=ms=>new Promise(r=>setTimeout(r,ms));
+
+// ── Gauge ─────────────────────────────────────────────────────────────────────
+const COLORS={ping:'#3b82f6',download:'#3b82f6',upload:'#8b5cf6'};
+function setGauge(v,max,type){
+  const fill=Math.min(v/max,1)*ARC;
+  const c=COLORS[type]||'#3b82f6';
+  $('g-fill').setAttribute('stroke-dasharray',`${fill} ${CIRC}`);
+  $('g-fill').setAttribute('stroke',c);
+  $('g-val').textContent=v>=100?Math.round(v):v.toFixed(1);
+  $('g-val').style.color=v>0?'var(--t1)':'var(--t3)';
+  $('g-unit').textContent=type==='ping'?'ms':'Mbps';
+  $('g-lbl').textContent=type==='ping'?'Ping':type==='download'?'Download':'Upload';
+}
+
+// ── Progress ──────────────────────────────────────────────────────────────────
+function setBar(p){$('pbar').style.width=p+'%'}
+
+// ── Status ────────────────────────────────────────────────────────────────────
+function setStatus(txt,done=false){
+  const row=$('status-row');
+  if(done){
+    row.innerHTML=`<svg class="done-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg><span class="status-txt" style="color:var(--emerald)">${txt}</span>`;
+  } else {
+    row.innerHTML=`<div class="spin"></div><span class="status-txt">${txt}</span>`;
+  }
+}
+
+// ── Phase steps ───────────────────────────────────────────────────────────────
+function setPhase(active){
+  ['ping','download','upload'].forEach(p=>{
+    const el=$('ph-'+p);
+    el.classList.remove('active','done');
+  });
+  if(active==='done'){
+    ['ping','download','upload'].forEach(p=>$('ph-'+p).classList.add('done'));
+  } else if(active){
+    const phases=['ping','download','upload'];
+    const idx=phases.indexOf(active);
+    phases.forEach((p,i)=>{
+      if(i<idx) $('ph-'+p).classList.add('done');
+      else if(i===idx) $('ph-'+p).classList.add('active');
+    });
+  }
+}
+
+// ── Cards ─────────────────────────────────────────────────────────────────────
+function setCard(type,active){
+  ['ping','download','upload'].forEach(t=>{
+    const el=$('card-'+t);
+    el.classList.toggle('active',t===type&&active);
+  });
+}
+function doneCard(type){$('card-'+type).classList.add('done-m')}
+
+// ── Reset ─────────────────────────────────────────────────────────────────────
+function resetUI(){
+  ['ping','dl','ul'].forEach(k=>$('val-'+k).textContent='—');
+  $('val-jitter').textContent='—';
+  $('results-card').classList.remove('show');
+  setGauge(0,CFG.MAX_PING,'ping');setBar(0);
+  ['ping','download','upload'].forEach(t=>{
+    $('card-'+t).classList.remove('active','done-m');
+    $('ph-'+t).classList.remove('active','done');
+  });
+  $('status-row').innerHTML=`<span style="font-size:.78rem;color:var(--t3)">Preparando…</span>`;
+}
+
+// ── Client info ───────────────────────────────────────────────────────────────
+async function loadClientInfo(){
+  try{
+    const r=await fetch('https://ipapi.co/json/');
+    const d=await r.json();
+    clientIP=d.ip||'0.0.0.0';
+    $('info-ip').textContent=d.ip||'—';
+    $('info-isp').textContent=(d.org||'Desconhecido').replace(/^AS\d+\s*/,'');
+    $('info-loc').textContent=[d.city,d.country_name].filter(Boolean).join(', ')||'—';
+  }catch{
+    try{const r=await fetch('/api/client-info');const d=await r.json();clientIP=d.ip;$('info-ip').textContent=d.ip;}
+    catch{$('info-ip').textContent='—';}
+  }
+}
+
+// ── Ping ──────────────────────────────────────────────────────────────────────
+async function testPing(){
+  const s=[];
+  for(let i=0;i<CFG.PING_N;i++){
+    const t0=performance.now();
+    await fetch('/api/ping',{cache:'no-store'});
+    s.push(performance.now()-t0);
+    setGauge(s.reduce((a,b)=>a+b,0)/s.length,CFG.MAX_PING,'ping');
+    setBar((i+1)/CFG.PING_N*33);
+    await dl(120);
+  }
+  const min=Math.min(...s),max=Math.max(...s),avg=s.reduce((a,b)=>a+b,0)/s.length;
+  let jsum=0;for(let i=1;i<s.length;i++)jsum+=Math.abs(s[i]-s[i-1]);
+  return{min,max,avg,jitter:jsum/(s.length-1)};
+}
+
+// ── Download ──────────────────────────────────────────────────────────────────
+async function testDownload(){
+  const t0=performance.now();let total=0,done=false;
+  const ctrls=Array.from({length:CFG.PARALLEL},()=>new AbortController());
+  const jobs=ctrls.map(ctrl=>
+    fetch('/api/download',{cache:'no-store',signal:ctrl.signal})
+      .then(r=>r.body.getReader())
+      .then(async reader=>{
+        while(!done){
+          const{done:end,value}=await reader.read();
+          if(end||done){reader.cancel();break;}
+          total+=value.length;
+          const el=(performance.now()-t0)/1000;
+          if(el>0.5)setGauge((total*8)/(el*1e6),CFG.MAX_DL,'download');
+          setBar(33+Math.min((performance.now()-t0)/CFG.DL_MS,1)*33);
+        }
+      }).catch(()=>{})
+  );
+  const timer=setTimeout(()=>{done=true;ctrls.forEach(c=>c.abort());},CFG.DL_MS);
+  await Promise.allSettled(jobs);clearTimeout(timer);done=true;
+  const el=(performance.now()-t0)/1000;
+  return(total*8)/(el*1e6);
+}
+
+// ── Upload ────────────────────────────────────────────────────────────────────
+function testUpload(){
+  return new Promise(resolve=>{
+    const PARALLEL_UL=4;
+    const CHUNK=Math.ceil(CFG.UL_BYTES/PARALLEL_UL);
+    const block=new Uint8Array(65536);
+    crypto.getRandomValues(block);
+    const buf=new Uint8Array(CHUNK);
+    for(let off=0;off<CHUNK;off+=65536)
+      buf.set(block.subarray(0,Math.min(65536,CHUNK-off)),off);
+    const t0=performance.now();
+    const loaded=new Array(PARALLEL_UL).fill(0);
+    let completed=0;
+    function onProg(){
+      const total=loaded.reduce((a,b)=>a+b,0);
+      const el=(performance.now()-t0)/1000;
+      if(el>0.3){setGauge((total*8)/(el*1e6),CFG.MAX_UL,'upload');setBar(66+(total/CFG.UL_BYTES)*34);}
+    }
+    for(let i=0;i<PARALLEL_UL;i++){
+      const idx=i,xhr=new XMLHttpRequest();
+      xhr.upload.onprogress=e=>{loaded[idx]=e.loaded;onProg();};
+      xhr.onload=()=>{
+        loaded[idx]=CHUNK;
+        if(++completed===PARALLEL_UL){
+          const el=(performance.now()-t0)/1000;
+          const mbps=(CFG.UL_BYTES*8)/(el*1e6);
+          setGauge(mbps,CFG.MAX_UL,'upload');setBar(100);resolve(mbps);
+        }
+      };
+      xhr.onerror=()=>{if(++completed===PARALLEL_UL)resolve(0);};
+      xhr.open('POST','/api/upload');
+      xhr.setRequestHeader('Content-Type','application/octet-stream');
+      xhr.send(buf);
+    }
+  });
+}
+
+// ── Save ──────────────────────────────────────────────────────────────────────
+async function saveResult(ping,dlv,ulv){
+  try{
+    await fetch('/api/result',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        test_id:testId,ip_address:clientIP,
+        isp:$('info-isp').textContent||null,
+        city:null,country:null,
+        latency_min:ping.min,latency_avg:ping.avg,latency_max:ping.max,jitter:ping.jitter,
+        download_mbps:dlv,upload_mbps:ulv,user_agent:navigator.userAgent
+      })
+    });
+  }catch(e){console.warn('Erro ao salvar:',e);}
+}
+
+// ── Score ─────────────────────────────────────────────────────────────────────
+function calcScore(ping,dl,ul){
+  let pts=0;
+  if(dl>=200)pts+=40;else if(dl>=100)pts+=30;else if(dl>=50)pts+=20;else if(dl>=20)pts+=10;else pts+=3;
+  if(ul>=50)pts+=30;else if(ul>=20)pts+=22;else if(ul>=10)pts+=14;else if(ul>=5)pts+=7;else pts+=2;
+  if(ping<=15)pts+=30;else if(ping<=30)pts+=22;else if(ping<=60)pts+=14;else if(ping<=100)pts+=7;else pts+=2;
+  if(pts>=85)return{label:'A+',color:'#10b981',bg:'rgba(16,185,129,.12)',border:'rgba(16,185,129,.3)'};
+  if(pts>=70)return{label:'A',color:'#10b981',bg:'rgba(16,185,129,.1)',border:'rgba(16,185,129,.25)'};
+  if(pts>=55)return{label:'B',color:'#3b82f6',bg:'rgba(59,130,246,.1)',border:'rgba(59,130,246,.25)'};
+  if(pts>=40)return{label:'C',color:'#f59e0b',bg:'rgba(245,158,11,.1)',border:'rgba(245,158,11,.25)'};
+  if(pts>=25)return{label:'D',color:'#ef4444',bg:'rgba(239,68,68,.1)',border:'rgba(239,68,68,.25)'};
+  return{label:'F',color:'#ef4444',bg:'rgba(239,68,68,.1)',border:'rgba(239,68,68,.25)'};
+}
+
+// ── Use cases ─────────────────────────────────────────────────────────────────
+function buildUseCases(ping,dl,ul){
+  const cases=[
+    {label:'Streaming 4K',ok:dl>=25,warn:dl>=10},
+    {label:'Streaming HD',ok:dl>=5,warn:dl>=2},
+    {label:'Videochamada HD',ok:dl>=5&&ul>=2,warn:dl>=2&&ul>=1},
+    {label:'Gaming Online',ok:ping<=40&&dl>=10,warn:ping<=80&&dl>=5},
+    {label:'Home Office',ok:dl>=20&&ul>=10,warn:dl>=10&&ul>=5},
+    {label:'Downloads rápidos',ok:dl>=100,warn:dl>=30},
+  ];
+  const icons={ok:'<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>',
+               warn:'<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="9" x2="12" y2="13"/><circle cx="12" cy="17" r=".5" fill="currentColor"/><path d="M12 3L2 21h20z"/></svg>',
+               no:'<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>'};
+  return cases.map(c=>{
+    const cls=c.ok?'ok':c.warn?'warn':'no';
+    return`<div class="usecase ${cls}">${icons[cls]}<span>${c.label}</span></div>`;
+  }).join('');
+}
+
+// ── Speed tag ─────────────────────────────────────────────────────────────────
+function speedTag(mbps){
+  if(mbps>=500)return['#10b981','rgba(16,185,129,.12)','Gigabit'];
+  if(mbps>=200)return['#10b981','rgba(16,185,129,.1)','Excelente'];
+  if(mbps>=100)return['#3b82f6','rgba(59,130,246,.1)','Muito bom'];
+  if(mbps>=50) return['#3b82f6','rgba(59,130,246,.08)','Bom'];
+  if(mbps>=20) return['#f59e0b','rgba(245,158,11,.1)','Regular'];
+  return['#ef4444','rgba(239,68,68,.1)','Lento'];
+}
+
+// ── History (localStorage) ────────────────────────────────────────────────────
+function saveHistory(ping,dl,ul){
+  const hist=JSON.parse(localStorage.getItem('arretado_hist')||'[]');
+  hist.unshift({ts:Date.now(),ping:ping.avg.toFixed(1),dl:dl.toFixed(1),ul:ul.toFixed(1)});
+  localStorage.setItem('arretado_hist',JSON.stringify(hist.slice(0,5)));
+}
+
+function renderHistory(){
+  const hist=JSON.parse(localStorage.getItem('arretado_hist')||'[]');
+  if(!hist.length)return;
+  $('history-card').classList.add('show');
+  $('history-list').innerHTML=hist.map(h=>{
+    const d=new Date(h.ts);
+    const fmt=d.toLocaleDateString('pt-BR',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
+    return`<div class="hist-item">
+      <span class="hist-date">${fmt}</span>
+      <div class="hist-vals">
+        <div class="hist-val"><div class="hv">${h.ping} ms</div><div class="hl">Ping</div></div>
+        <div class="hist-val"><div class="hv">${h.dl} Mbps</div><div class="hl">Download</div></div>
+        <div class="hist-val"><div class="hv">${h.ul} Mbps</div><div class="hl">Upload</div></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── Show results ──────────────────────────────────────────────────────────────
+function showResults(ping,dlMbps,ulMbps){
+  // Score
+  const sc=calcScore(ping.avg,dlMbps,ulMbps);
+  const badge=$('score-badge');
+  badge.textContent=`Nota ${sc.label}`;
+  badge.style.cssText=`color:${sc.color};background:${sc.bg};border:1px solid ${sc.border};padding:5px 12px;border-radius:6px;font-weight:700;font-size:.8rem`;
+
+  // IDs
+  $('res-id').textContent=testId;
+  $('r-pmin').textContent=ping.min.toFixed(1);
+  $('r-pavg').textContent=ping.avg.toFixed(1);
+  $('r-pmax').textContent=ping.max.toFixed(1);
+  $('r-jit').textContent=ping.jitter.toFixed(1);
+  $('r-dl').textContent=dlMbps.toFixed(1);
+  $('r-ul').textContent=ulMbps.toFixed(1);
+
+  // DL tag
+  const[tc,tbg,tlbl]=speedTag(dlMbps);
+  $('r-dl-tag').innerHTML=`<span class="tag" style="color:${tc};background:${tbg};border:1px solid ${tc}33">${tlbl}</span>`;
+
+  // Use cases
+  $('usecases').innerHTML=buildUseCases(ping.avg,dlMbps,ulMbps);
+
+  $('results-card').classList.add('show');
+  setTimeout(()=>$('results-card').scrollIntoView({behavior:'smooth',block:'nearest'}),100);
+
+  saveHistory(ping,dlMbps,ulMbps);
+  renderHistory();
+}
+
+// ── Main flow ─────────────────────────────────────────────────────────────────
+async function startTest(){
+  if(running)return;
+  running=true;
+  const btn=$('btn-start');
+  btn.disabled=true;btn.textContent='Testando…';
+  resetUI();
+
+  try{
+    try{const r=await fetch('/api/new-test-id');testId=(await r.json()).test_id;}
+    catch{testId=crypto.randomUUID();}
+
+    // Ping
+    setStatus('Medindo latência e jitter…');setPhase('ping');setCard('ping',true);
+    const pingRes=await testPing();
+    $('val-ping').textContent=pingRes.avg.toFixed(1);
+    $('val-jitter').textContent=pingRes.jitter.toFixed(1);
+    setCard('ping',false);doneCard('ping');
+
+    // Download
+    setStatus('Testando velocidade de download…');setPhase('download');setCard('download',true);
+    const dlMbps=await testDownload();
+    $('val-dl').textContent=dlMbps.toFixed(1);
+    setCard('download',false);doneCard('download');
+
+    // Upload
+    setStatus('Testando velocidade de upload…');setPhase('upload');setCard('upload',true);
+    const ulMbps=await testUpload();
+    $('val-ul').textContent=ulMbps.toFixed(1);
+    setCard('upload',false);doneCard('upload');
+
+    // Save
+    setStatus('Salvando resultado…');
+    await saveResult(pingRes,dlMbps,ulMbps);
+
+    setStatus('Teste concluído com sucesso.',true);
+    setPhase('done');
+    showResults(pingRes,dlMbps,ulMbps);
+
+  }catch(e){
+    $('status-row').innerHTML=`<span style="font-size:.78rem;color:var(--red)">Erro durante o teste. Tente novamente.</span>`;
+    console.error(e);
+  }
+
+  btn.disabled=false;btn.textContent='Novo Teste';running=false;
+}
+
+// ── Copy / Share ──────────────────────────────────────────────────────────────
+async function copyId(){
+  if(!testId)return;
+  await navigator.clipboard.writeText(testId);
+  const btn=document.querySelector('.btn-copy');
+  btn.textContent='Copiado!';setTimeout(()=>btn.textContent='Copiar',2000);
+}
+
+function shareResult(){
+  if(!testId)return;
+  const url=`${location.origin}/?id=${testId}`;
+  navigator.clipboard.writeText(url);
+  const btn=document.querySelector('.btn-share');
+  btn.textContent='Link copiado!';setTimeout(()=>btn.textContent='Compartilhar',2000);
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+loadClientInfo();
+renderHistory();
+</script>
+</body>
+</html>

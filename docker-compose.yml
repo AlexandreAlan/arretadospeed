@@ -1,0 +1,17 @@
+services:
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: arretadospeed_backend
+    restart: unless-stopped
+    network_mode: host
+    environment:
+      DATABASE_URL: "postgresql+asyncpg://${DB_USER:-arretado}:${DB_PASS:-arretado123}@localhost:${DB_PORT:-5432}/${DB_NAME:-arretadospeed}"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8001/api/ping')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s

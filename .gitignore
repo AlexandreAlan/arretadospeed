@@ -1,0 +1,39 @@
+# Variáveis de ambiente (NUNCA commitar)
+.env
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+.venv/
+venv/
+env/
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+logs/
+
+# Docker
+.docker/
+
+# Certificados SSL (gerados pelo Certbot na VPS)
+ssl/
+certs/
