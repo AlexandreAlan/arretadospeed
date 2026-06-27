@@ -40,12 +40,16 @@ Browser
   │
   ▼
 Nginx (porta 443 — HTTPS / TLS 1.2+)
-  ├── /           → Frontend estático (HTML/CSS/JS)
-  └── /api/       → Proxy reverso ──► FastAPI (porta 8001)
+  └── /           → Proxy reverso ──► FastAPI (porta 8001)
+                                          ├── /api/*  (endpoints REST)
+                                          ├── /       (frontend estático embutido)
                                           │
                                           ▼
                                     PostgreSQL (porta 5432)
 ```
+
+> O frontend é servido **de dentro do container** pelo FastAPI (`StaticFiles`).
+> Quando o container para, o site vai completamente off — sem frontend "fantasma" via Nginx.
 
 ---
 
@@ -57,7 +61,7 @@ Nginx (porta 443 — HTTPS / TLS 1.2+)
 | Backend     | Python 3.12 + FastAPI + Uvicorn   |
 | Banco       | PostgreSQL 15                     |
 | ORM         | SQLAlchemy 2 (async) + asyncpg    |
-| Servidor    | Nginx (reverse proxy + static)    |
+| Servidor    | Nginx (reverse proxy puro)        |
 | Containers  | Docker + Docker Compose           |
 | SSL         | Let's Encrypt + Certbot           |
 | Infra       | VPS Linux (Ubuntu) — EUA          |
@@ -179,13 +183,11 @@ Ajuste o `server_name` dentro de `nginx/nginx.conf` para o seu domínio.
 sudo certbot --nginx -d seudominio.com.br
 ```
 
-### 7. Aponte o frontend
+### 7. Frontend
 
-O Nginx serve o frontend diretamente como arquivo estático. Certifique-se de que o `root` no `nginx.conf` aponta para o diretório correto:
-
-```nginx
-root /var/www/arretadospeed;
-```
+O frontend é servido **pelo próprio FastAPI** (embutido no container via `StaticFiles`).
+Não há `root` estático no Nginx — tudo passa pelo proxy reverso.
+Isso garante que ao parar o container, o site fica completamente off.
 
 ---
 
@@ -274,6 +276,15 @@ docker inspect arretadospeed_backend | grep -A 10 Health
 
 Este projeto é open source sob a licença **MIT**.  
 Sinta-se livre para usar, modificar e distribuir.
+
+---
+
+## 📋 Histórico de Versões
+
+| Versão | Data       | Mudança                                                                                  |
+|--------|------------|------------------------------------------------------------------------------------------|
+| 1.1.0  | 2026-06-27 | Frontend embutido no container; Nginx vira proxy puro; parar o container para o site de verdade |
+| 1.0.0  | 2026-06-25 | Versão inicial — FastAPI + PostgreSQL + frontend estático via Nginx                      |
 
 ---
 
