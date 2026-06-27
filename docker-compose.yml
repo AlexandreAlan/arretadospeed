@@ -2,8 +2,8 @@ services:
 
   backend:
     build:
-      context: ./backend
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: backend/Dockerfile
     container_name: arretadospeed_backend
     restart: unless-stopped
     network_mode: host
