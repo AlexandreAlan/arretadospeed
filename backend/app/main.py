@@ -7,6 +7,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
@@ -124,3 +125,9 @@ async def new_test_id():
 async def client_info(request: Request):
     ip = get_client_ip(request)
     return {"ip": ip, "user_agent": request.headers.get("user-agent", "")}
+
+
+# Frontend estático — montado POR ÚLTIMO para não conflitar com rotas /api/.
+# Quando o container está parado, o nginx não tem para onde encaminhar e retorna
+# 502 — o site fica completamente fora do ar (comportamento correto).
+app.mount("/", StaticFiles(directory="/app/frontend", html=True), name="frontend")
